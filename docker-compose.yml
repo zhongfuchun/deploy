@@ -1,0 +1,113 @@
+version: '2'
+
+services:
+  # Home and Support Center
+  mysql:
+    image: reg.zintow.com/infrastructure/mysql:5.7
+    ports:
+      - "3306:3306"
+    volumes:
+      - /data/mysql:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=Wewin2016!
+  wordpress:
+    image: reg.zintow.com/infrastructure/wordpress
+    restart: always
+    dns: 114.114.114.114
+    links:
+      - mysql
+    volumes:
+      - /data/wordpress:/var/www/html
+    environment:
+      - WORDPRESS_DB_HOST=mysql:3306
+      - WORDPRESS_DB_USER=root
+      - WORDPRESS_DB_PASSWORD=Wewin2016!
+
+  # Mircoservices and App
+  sm:
+    image: reg.zintow.com/csss/sm:20170224
+    hostname: sm
+    restart: always
+    dns: 127.0.0.1
+    links:
+      - consul
+    environment:
+      - CONSUL_PORT_8500_TCP_ADDR=consul
+
+  entity:
+    image: reg.zintow.com/csss/entity:20170224
+    hostname: entity
+    restart: always
+    dns: 127.0.0.1
+    links:
+      - consul
+    environment:
+      - CONSUL_PORT_8500_TCP_ADDR=consul
+
+  playdata:
+    image: reg.zintow.com/csss/playdata:20170224
+    hostname: playdata
+    restart: always
+    dns: 127.0.0.1
+    links:
+      - consul
+    environment:
+      - CONSUL_PORT_8500_TCP_ADDR=consul
+
+  analysis:
+    image: reg.zintow.com/csss/analysis:20170224
+    hostname: analysis
+    restart: always
+    dns: 127.0.0.1
+    links:
+      - consul
+    environment:
+      - CONSUL_PORT_8500_TCP_ADDR=consul
+
+  report:
+    image: reg.zintow.com/csss/report:20170224
+    hostname: report
+    restart: always
+    dns: 127.0.0.1
+    links:
+      - consul
+    environment:
+      - CONSUL_PORT_8500_TCP_ADDR=consul
+
+  html:
+    image: reg.zintow.com/csss/html:20170224
+    hostname: html
+    dns: consul
+    restart: always
+    volumes:
+      - /public/html:/public
+    links:
+      - consul
+    environment:
+      - CONSUL_PORT_8500_TCP_ADDR=consul
+
+  consul:
+    image: reg.zintow.com/infrastructure/consul
+    hostname: consul
+    restart: always
+    ports:
+      - "8500:8500"
+    volumes:
+      - /data:/data
+    environment:
+      - CONSUL_OPTIONS=-bootstrap
+
+  nginx:
+    image: reg.zintow.com/infrastructure/nginx
+    hostname: nginx
+    dns: consul
+    restart: always
+    ports:
+      - "80:80"
+    links:
+      - wordpress
+      - consul
+    volumes:
+      - /public:/public
+    environment:
+      - CONSUL_PORT_8500_TCP_ADDR=consul

@@ -1,0 +1,23 @@
+
+zintow:
+  cluster:
+    host: nginx
+    protocol: http
+  elasticsearch:
+    index: test0217
+    nodes: 117.78.38.87,172.16.0.29
+
+spring:
+  data:
+    mongodb:
+      host: mongo.service.consul
+      port: 27017
+      database: csss
+      username: admin
+      password: "@xwmDP9115"
+      repositories:
+        enabled: true
+  datasource:
+    url: "jdbc:mysql://mysql.service.consul:3306/c3s_security?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true"
+    username: "c3sadmin"
+    password: "363H%^&mf2"
